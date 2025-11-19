@@ -7,607 +7,809 @@
     <style>
         :root {
             --primary: #007AFF;
+            --secondary: #5856D6;
             --success: #34C759;
             --bg: #F2F2F7;
             --card: #FFFFFF;
             --text: #000000;
-            --danger: #FF3B30;
-            --gray: #8E8E93;
-            --weak: #FF9500; /* Orange for weakness */
+            --error: #FF3B30;
+            --grey: #E5E5EA;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #e5e5e5;
+            background-color: var(--bg);
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 10px 0;
             box-sizing: border-box;
         }
         .app-container {
             width: 100%;
             max-width: 400px;
-            height: 100%;
-            max-height: 700px;
+            min-height: 600px;
             background-color: var(--bg);
-            border: 1px solid #ccc;
             border-radius: 20px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             position: relative;
         }
+        
+        /* Header */
         .header {
             background: var(--card);
-            padding: 15px;
+            padding: 15px 20px;
             text-align: center;
             border-bottom: 1px solid #ddd;
-            font-weight: bold;
-            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .score-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        /* Tab Bar */
+        .tab-bar {
+            background: var(--card);
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .tab-item {
+            font-size: 14px;
+            color: #999;
+            cursor: pointer;
+            text-align: center;
+            padding: 5px 15px;
+            transition: color 0.2s;
+        }
+        .tab-item.active { 
+            color: var(--primary); 
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* Content Area */
         .content {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* CARD & ROOT DISPLAY */
-        .verb-card {
+        /* Challenge Mode (Tab 1) */
+        .challenge-card {
             background: var(--card);
             border-radius: 15px;
-            padding: 25px 20px;
+            padding: 30px 20px;
+            width: 100%;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
-        .result-word {
-            font-size: 56px;
+        .challenge-word {
+            font-size: 40px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--secondary);
+            direction: rtl;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Responsive grid */
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .btn {
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            font-size: 14px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-form { 
+            background: var(--grey); 
+            color: var(--text); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            height: 65px;
+            min-width: 0;
+        }
+        .btn-form .form-ar {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 2px;
+            direction: rtl;
+        }
+        .btn-form:hover { background: #dcdce1; }
+
+        /* Study Mode (Tab 2) */
+        .controls-panel {
+            width: 100%;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            background: var(--bg);
+        }
+
+        /* Interactive Dial (New UI) */
+        .interactive-controls {
+            display: flex;
+            justify-content: space-around;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .interactive-controls .btn {
+            flex-grow: 1;
+            background: var(--grey);
+            padding: 10px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .interactive-controls .btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .study-output {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        .study-verb-display {
+            font-size: 60px;
             font-weight: 800;
             margin: 10px 0;
             color: var(--text);
-            transition: all 0.5s ease-out;
-            min-height: 70px;
+            direction: rtl;
         }
-        .root-meta {
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        .meaning-shift {
-            color: var(--gray);
-            font-style: italic;
-            font-size: 0.9em;
-        }
-
-        /* FEATURE 1: PATTERN DIAL (Dropdown simulation for now) */
-        .dial-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .dial-controls-tense {
-            grid-column: 1 / span 3;
-        }
-        select, input[type="text"] {
-            padding: 8px; 
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            background: white;
-            box-sizing: border-box;
-            /* Ensure text is visible in narrow spaces */
-            min-width: 0; 
-        }
-        
-        /* WEAK VERB LAB - Visual */
-        .weak-letter {
-            color: var(--weak);
-            animation: shake-weak 0.7s infinite alternate;
-        }
-        @keyframes shake-weak {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(2deg); }
-        }
-        .cracked {
-            color: var(--danger);
-            text-decoration: line-through;
-            opacity: 0.5;
-            transition: all 0.5s;
-        }
-        .hidden-letter {
-            display: none;
-        }
-        .slide-in {
-            transition: opacity 0.5s, transform 0.5s;
-            opacity: 0;
-            transform: translateY(-10px); 
-        }
-        .slide-in.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .form-info {
-            background: #E5E5EA;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.85em;
-            text-align: left;
-        }
-
-        /* FEATURE 3: REVERSE LOOKUP */
-        .reverse-input-section {
-            padding: 15px;
-            background: #fff;
-            border-radius: 15px;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .reverse-results {
-            margin-top: 15px;
-            font-size: 1em;
-            font-weight: 500;
-            color: var(--text);
-        }
-        .highlight-form {
-            color: var(--primary);
+        .study-root {
+            font-size: 18px;
+            color: var(--secondary);
             font-weight: bold;
+            margin-bottom: 5px;
+            direction: rtl;
         }
-        .btn {
+        .study-description {
+            font-size: 14px;
+            color: #888;
+            margin-top: 15px;
+            font-style: italic;
+            text-align: right;
+            direction: rtl;
+            line-height: 1.5;
+        }
+
+        /* Reverse Lookup */
+        .reverse-lookup-container {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 20px;
         }
-        .btn:hover { background: #0066CC; }
+        .reverse-lookup-container h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+        }
+        #reverseResult {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        .shake-animation { animation: shake 0.5s ease-in-out; }
+        .cracked { color: var(--error); text-decoration: none; font-weight: bold; } /* Removed line-through for clean look */
+        .cracked-text { color: var(--error); }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        /* RTL fixes for selectors */
+        select { direction: rtl; text-align: right; }
+        option { direction: rtl; text-align: right; }
     </style>
 </head>
 <body>
 
 <div class="app-container" id="app">
-    <div class="header">Morphology (Sarf) Logic Engine</div>
+    <!-- Header -->
+    <div class="header">
+        <div style="font-weight:bold; font-size:18px;">Sarf Logic Engine</div>
+        <div class="score-badge">Score: <span id="scoreDisplay">0</span></div>
+    </div>
 
-    <div class="content">
-        <div class="dial-controls-tense">
-            <select id="tenseSelector" onchange="updateConjugation()" style="width:100%;">
-                <option value="Past">Past Tense (الماضي)</option>
-                <option value="Present">Present Tense (المضارع)</option>
-            </select>
-        </div>
+    <!-- Content -->
+    <div id="contentArea" class="content">
+        <!-- Dynamic Content Injected Here -->
+    </div>
 
-        <div class="dial-controls">
-            <select id="rootSelector" onchange="updateConjugation()">
-                <!-- Options populated by JS -->
-            </select>
-            <select id="formSelector" onchange="updateConjugation()">
-                <!-- Options populated by JS for I-X -->
-            </select>
-            <select id="pronounSelector" onchange="updateConjugation()">
-                <!-- Options populated by JS for 14 pronouns -->
-            </select>
-        </div>
-
-        <!-- FEATURE 1 & 2: CONJUGATION DISPLAY / WEAK VERB LAB -->
-        <div class="verb-card">
-            <div class="root-meta" id="rootDisplay"></div>
-            
-            <div class="result-word" id="resultWord"></div>
-            <div class="form-info" id="formInfo"></div>
-        </div>
-
-        <!-- FEATURE 3: REVERSE LOOKUP -->
-        <div class="reverse-input-section">
-            <h3 style="margin-top:0; font-size:1.2em; border-bottom:1px solid #eee; padding-bottom:5px;">Reverse Lookup Utility</h3>
-            <input type="text" id="reverseInput" placeholder="Enter word (e.g., Mutakabbir)" style="width:100%; box-sizing:border-box;">
-            <button class="btn" onclick="reverseLookup()">Analyze Word Structure</button>
-            <div class="reverse-results" id="reverseResult"></div>
-        </div>
+    <!-- Tabs -->
+    <div class="tab-bar">
+        <div class="tab-item" id="tabChallenge" onclick="switchTab(1)">Challenge</div>
+        <div class="tab-item" id="tabStudy" onclick="switchTab(2)">Study</div>
     </div>
 </div>
 
 <script>
     // --- STATE MANAGEMENT ---
     let state = {
-        currentRoot: "D-R-S",
-        currentForm: "I",
-        currentPronoun: "hua",
-        currentTense: "Past" // Initial Tense
+        currentTab: 1, // 1: Challenge, 2: Study
+        score: 0,
+        tense: 'past', // past, present, imperative
+        rootKey: 'DRS', // DRS, QWL, RMY, MDD, AKH (Added Hamzated Root)
+        form: 'I', // I, II, III, IV, V, VI, VII, VIII, IX, X
+        pronoun: 'hua', // Default: هو (He)
+        currentChallengeWord: null
     };
 
-    // --- DATA: ROOT LOGIC ---
-    const rootLogic = {
-        "D-R-S": { base: "دَرَس", meaning: "To Study/Teach", type: "Strong", rootAr: "د-ر-س" }, 
-        "Q-W-L": { base: "قَوَل", meaning: "To Say", type: "Hollow (Ajwaf)", rootAr: "ق-و-ل" },
-        "R-M-Y": { base: "رَمَي", meaning: "To Throw", type: "Defective (Naqis)", rootAr: "ر-م-ي" }, 
-        "M-D-D": { base: "مَدَد", meaning: "To Extend/Stretch", type: "Doubled (Mudha'af)", rootAr: "م-د-د" },
-        "K-B-R": { base: "كَبَر", meaning: "To be Big/Great", type: "Strong", rootAr: "ك-ب-ر" }
-    };
-    
-    // Pronoun definitions
-    const pronouns = [
-        { key: "hua", name: "He (هو)", type: "Strong" },
-        { key: "huma_m", name: "They (2m - هما)", type: "Strong" },
-        { key: "hum", name: "They (m - هم)", type: "Strong" },
-        { key: "hiya", name: "She (هي)", type: "Strong" },
-        { key: "huma_f", name: "They (2f - هما)", type: "Strong" },
-        { key: "hunna", name: "They (f - هن)", type: "Weak" },
-        { key: "anta", name: "You (m - أنت)", type: "Weak" },
-        { key: "antuma_m", name: "You (2m - أنتما)", type: "Weak" },
-        { key: "antum", name: "You (m.pl - أنتم)", type: "Weak" },
-        { key: "anti", name: "You (f - أنتِ)", type: "Weak" },
-        { key: "antuma_f", name: "You (2f - أنتما)", type: "Weak" },
-        { key: "antunna", name: "You (f.pl - أنتن)", type: "Weak" },
-        { key: "ana", name: "I (أنا)", type: "Weak" },
-        { key: "nahnu", name: "We (نحن)", type: "Weak" }
+    // --- DATA ---
+    const pronounData = [
+        { key: 'hua', ar: 'هو', en: 'He', imper: false },
+        { key: 'huma_m', ar: 'هما', en: 'They (m. dual)', imper: false },
+        { key: 'hum', ar: 'هم', en: 'They (m. pl.)', imper: false },
+        { key: 'hiya', ar: 'هي', en: 'She', imper: false },
+        { key: 'huma_f', ar: 'هما', en: 'They (f. dual)', imper: false },
+        { key: 'hunna', ar: 'هن', en: 'They (f. pl.)', imper: false },
+        { key: 'anta', ar: 'أنتَ', en: 'You (m. sg.)', imper: true },
+        { key: 'antuma_m', ar: 'أنتما', en: 'You (m. dual)', imper: true },
+        { key: 'antum', ar: 'أنتم', en: 'You (m. pl.)', imper: true },
+        { key: 'anti', ar: 'أنتِ', en: 'You (f. sg.)', imper: true },
+        { key: 'antuma_f', ar: 'أنتما', en: 'You (f. dual)', imper: true },
+        { key: 'antunna', ar: 'أنتن', en: 'You (f. pl.)', imper: true },
+        { key: 'ana', ar: 'أنا', en: 'I', imper: false },
+        { key: 'nahnu', ar: 'نحن', en: 'We', imper: false }
     ];
 
-    // Form Stems (This is the *Past* Tense base for Forms I-X)
-    const formStemsPast = {
-        "D-R-S": { "I": "دَرَس", "II": "دَرَّس", "III": "دَارَس", "IV": "أَدْرَس", "V": "تَدَرَّس", "VI": "تَدَارَس", "VII": "اِنْدَرَس", "VIII": "اِدْتَرَس", "IX": "اِدْرَس", "X": "اِسْتَدْرَس", },
-        "Q-W-L": { "I": "قَوَل", "II": "قَوَّل", "III": "قَاوَل", "IV": "أَقْوَل", "V": "تَقَوَّل", "VI": "تَقَاوَل", "VII": "اِنْقَوَل", "VIII": "اِقْتَوَل", "IX": "اِقْوَل", "X": "اِسْتَقْوَل", },
-        "R-M-Y": { "I": "رَمَي", "II": "رَمَّي", "III": "رَامَي", "IV": "أَرْمَي", "V": "تَرَمَّي", "VI": "تَرَامَي", "VII": "اِنْرَمَي", "VIII": "اِرْتَمَي", "IX": "اِرْمَي", "X": "اِسْتَرْمَي", },
-        "M-D-D": { "I": "مَدَد", "II": "مَدَّد", "III": "مَادَد", "IV": "أَمْدَد", "V": "تَمَدَّد", "VI": "تَمَادَد", "VII": "اِنْمَدَد", "VIII": "اِمْتَدَد", "IX": "اِمْدَد", "X": "اِسْتَمْدَد", },
-    };
+    // UPDATED: Added Arabic patterns for Challenge Mode
+    const formNames = [
+        { key: 'I', en: 'I (Base)', ar: 'فَعَلَ' }, 
+        { key: 'II', en: 'II (Intensive)', ar: 'فَعَّلَ' }, 
+        { key: 'III', en: 'III (Partner)', ar: 'فَاعَلَ' }, 
+        { key: 'IV', en: 'IV (Causative)', ar: 'أَفْعَلَ' }, 
+        { key: 'V', en: 'V (Reflexive II)', ar: 'تَفَعَّلَ' }, 
+        { key: 'VI', en: 'VI (Reflexive III)', ar: 'تَفَاعَلَ' },
+        { key: 'VII', en: 'VII (Passive)', ar: 'اِنْفَعَلَ' }, 
+        { key: 'VIII', en: 'VIII (Reciprocal)', ar: 'اِفْتَعَلَ' }, 
+        { key: 'IX', en: 'IX (Color/Flaw)', ar: 'اِفْعَلَّ' }, 
+        { key: 'X', en: 'X (Request)', ar: 'اِسْتَفْعَلَ' }
+    ];
 
-    // Form Stems (This is the *Present* Tense Base/Root for Forms I-X)
-    const formStemsPresent = {
-        // Note: Stem is usually F-U-L for Form I, F-A-L for others
-        "D-R-S": { "I": "دْرُس", "II": "دَرِّس", "III": "دَارِس", "IV": "دْرِس", "V": "دَرَّس", "VI": "دَارَس", "VII": "نْدَرِس", "VIII": "دْتَرِس", "IX": "دْرِس", "X": "سْتَدْرِس", },
-        "Q-W-L": { "I": "قُول", "II": "قَوِّل", "III": "قَاوِل", "IV": "قِيل", "V": "قَوَّل", "VI": "قَاوَل", "VII": "قَال", "VIII": "قْتَل", "IX": "قَال", "X": "سْتَقِي", }, // Q-W-L weak stem
-        "R-M-Y": { "I": "رْمِي", "II": "رَمِّي", "III": "رَامِي", "IV": "رْمِي", "V": "رَمَّي", "VI": "رَامَي", "VII": "رَمِي", "VIII": "رْتَمِي", "IX": "رَمِي", "X": "سْتَرْمِي", }, // R-M-Y weak stem
-        "M-D-D": { "I": "مُدّ", "II": "مَدِّد", "III": "مَادِد", "IV": "مْدِد", "V": "مَدَّد", "VI": "مَادَد", "VII": "مْدَد", "VIII": "مْتَدّ", "IX": "مْدَد", "X": "سْتَمْدِد", }, // M-D-D doubled stem
-    };
-    
-    // Past Tense Suffixes are reused
-    const pastSuffixes = {
-        "hua": "َ", "huma_m": "َا", "hum": "ُوا", "hiya": "َتْ", "huma_f": "َتَا", "hunna": "ْنَ", 
-        "anta": "ْتَ", "antuma_m": "ْتُمَا", "antum": "ْتُمْ", "anti": "ْتِ", "antuma_f": "ْتُمَا", 
-        "antunna": "ْتُنَّ", "ana": "ْتُ", "nahnu": "ْنَا" 
-    };
+    // --- CORE CONJUGATION DATA ---
 
-    // Present Tense Prefixes and Suffixes
-    const presentPrefixes = {
-        "hua": "يَ", "huma_m": "يَ", "hum": "يَ", "hiya": "تَ", 
-        "huma_f": "تَ", "hunna": "يَ", "anta": "تَ", "antuma_m": "تَ", 
-        "antum": "تَ", "anti": "تَ", "antuma_f": "تَ", "antunna": "تَ", 
-        "ana": "أَ", "nahnu": "نَ" 
-    };
-    const presentSuffixes = {
-        "hua": "ُ", "huma_m": "َانِ", "hum": "ُونَ", 
-        "hiya": "ُ", "huma_f": "َانِ", "hunna": "ْن", // Suffix drops final vowel
-        "anta": "ُ", "antuma_m": "َانِ", "antum": "ُونَ", 
-        "anti": "ِينَ", "antuma_f": "َانِ", "antunna": "ْن", // Suffix drops final vowel
-        "ana": "ُ", "nahnu": "ُ" 
-    };
-    const presentStrongVowel = {
-        "hua": "ُ", "huma_m": "", "hum": "", "hiya": "ُ", "huma_f": "", "hunna": "", 
-        "anta": "ُ", "antuma_m": "", "antum": "", "anti": "", "antuma_f": "", "antunna": "", 
-        "ana": "ُ", "nahnu": "ُ" 
-    };
-
-    // --- COMPLEX CONJUGATION LOGIC ---
-
-    function conjugate(rootKey, formKey, pronounKey, tense) {
-        if (tense === "Past") {
-            return conjugatePast(rootKey, formKey, pronounKey);
-        } else {
-            return conjugatePresent(rootKey, formKey, pronounKey);
+    // Pronoun suffixes used for conjugation logic
+    const suffixes = {
+        past: {
+            hua: '', huma_m: 'َا', hum: 'وا', hiya: 'تْ', huma_f: 'َتَا', hunna: 'ْنَ',
+            anta: 'ْتَ', antuma_m: 'ْتُمَا', antum: 'ْتُمْ', anti: 'ْتِ', antuma_f: 'ْتُمَا', antunna: 'ْتُنَّ',
+            ana: 'ْتُ', nahnu: 'ْنَا'
+        },
+        present: {
+            hua: 'ُ', huma_m: 'َانِ', hum: 'ُونَ', hiya: 'ُ', huma_f: 'َانِ', hunna: 'ْنَ',
+            anta: 'ُ', antuma_m: 'َانِ', antum: 'ُونَ', anti: 'ينَ', antuma_f: 'َانِ', antunna: 'ْنَ',
+            ana: 'ُ', nahnu: 'ُ'
+        },
+        present_prefix: {
+            hua: 'يَ', huma_m: 'يَ', hum: 'يَ', hiya: 'تَ', huma_f: 'تَ', hunna: 'يَ',
+            anta: 'تَ', antuma_m: 'تَ', antum: 'تَ', anti: 'تَ', antuma_f: 'تَ', antunna: 'تَ',
+            ana: 'أَ', nahnu: 'نَ'
+        },
+        // Imperative only uses 5 forms of "You"
+        imperative_suffix: {
+            anta: 'ْ', antuma_m: 'َا', antum: 'ُوا', anti: 'ي', antunna: 'ْنَ'
         }
-    }
+    };
 
-    function conjugatePast(rootKey, formKey, pronounKey) {
-        let baseStem = formStemsPast[rootKey][formKey];
-        const suffix = pastSuffixes[pronounKey];
-        const pronoun = pronouns.find(p => p.key === pronounKey);
-        const isWeakSuffix = pronoun.type === "Weak" || pronounKey === 'hunna';
-        
-        let conjugated = baseStem + suffix;
-        let ruleExplanation = "";
-        let visualization = "Strong"; 
+    // Verb conjugation lookup (Form I only, others are generalized stems)
+    const rootData = {
+        'DRS': {
+            ar: 'د-ر-س', en: 'D-R-S', type: 'Strong (سالم)', meaning: 'To Study/Teach',
+            past: { hua: 'دَرَسَ', huma_m: 'دَرَسَا', hum: 'دَرَسُوا', hiya: 'دَرَسَتْ', huma_f: 'دَرَسَتَا', hunna: 'دَرَسْنَ', anta: 'دَرَسْتَ', antuma_m: 'دَرَسْتُمَا', antum: 'دَرَسْتُمْ', anti: 'دَرَسْتِ', antuma_f: 'دَرَسْتُمَا', antunna: 'دَرَسْتُنَّ', ana: 'دَرَسْتُ', nahnu: 'دَرَسْنَا' },
+            present: { hua: 'يَدْرُسُ', huma_m: 'يَدْرُسَانِ', hum: 'يَدْرُسُونَ', hiya: 'تَدْرُسُ', huma_f: 'تَدْرُسَانِ', hunna: 'يَدْرُسْنَ', anta: 'تَدْرُسُ', antuma_m: 'تَدْرُسَانِ', antum: 'تَدْرُسُونَ', anti: 'تَدْرُسِينَ', antuma_f: 'تَدْرُسَانِ', antunna: 'تَدْرُسْنَ', ana: 'أَدْرُسُ', nahnu: 'نَدْرُسُ' },
+        },
+        'QWL': {
+            ar: 'ق-و-ل', en: 'Q-W-L', type: 'Hollow (أجوف)', meaning: 'To Say',
+            past: { hua: 'قَالَ', huma_m: 'قَالَا', hum: 'قَالُوا', hiya: 'قَالَتْ', huma_f: 'قَالَتَا', hunna: '<span class="cracked-text">قَوَلْنَ</span> قُلْنَ', anta: '<span class="cracked-text">قَوَلْتَ</span> قُلْتَ', antuma_m: '<span class="cracked-text">قَوَلْتُمَا</span> قُلْتُمَا', antum: '<span class="cracked-text">قَوَلْتُمْ</span> قُلْتُمْ', anti: '<span class="cracked-text">قَوَلْتِ</span> قُلْتِ', antuma_f: '<span class="cracked-text">قَوَلْتُمَا</span> قُلْتُمَا', antunna: '<span class="cracked-text">قَوَلْتُنَّ</span> قُلْتُنَّ', ana: '<span class="cracked-text">قَوَلْتُ</span> قُلْتُ', nahnu: '<span class="cracked-text">قَوَلْنَا</span> قُلْنَا' },
+            present: { hua: 'يَقُولُ', huma_m: 'يَقُولَانِ', hum: 'يَقُولُونَ', hiya: 'تَقُولُ', huma_f: 'تَقُولَانِ', hunna: 'يَقُلْنَ', anta: 'تَقُولُ', antuma_m: 'تَقُولَانِ', antum: 'تَقُولُونَ', anti: 'تَقُولِينَ', antuma_f: 'تَقُولَانِ', antunna: 'تَقُلْنَ', ana: 'أَقُولُ', nahnu: 'نَقُولُ' },
+        },
+        'RMY': {
+            ar: 'ر-م-ي', en: 'R-M-Y', type: 'Defective (ناقص)', meaning: 'To Throw',
+            past: { hua: 'رَمَى', huma_m: 'رَمَيَا', hum: '<span class="cracked-text">رَمَيُوا</span> رَمَوْا', hiya: '<span class="cracked-text">رَمَيَتْ</span> رَمَتْ', huma_f: 'رَمَتَا', hunna: '<span class="cracked-text">رَمَيْنَ</span> رَمَيْنَ', anta: 'رَمَيْتَ', antuma_m: 'رَمَيْتُمَا', antum: 'رَمَيْتُمْ', anti: 'رَمَيْتِ', antuma_f: 'رَمَيْتُمَا', antunna: 'رَمَيْتُنَّ', ana: 'رَمَيْتُ', nahnu: 'رَمَيْنَا' },
+            present: { hua: 'يَرْمِي', huma_m: 'يَرْمِيَانِ', hum: '<span class="cracked-text">يَرْمِيُونَ</span> يَرْمُونَ', hiya: 'تَرْمِي', huma_f: 'تَرْمِيَانِ', hunna: 'يَرْمِينَ', anta: 'تَرْمِي', antuma_m: 'تَرْمِيَانِ', antum: '<span class="cracked-text">تَرْمِيُونَ</span> تَرْمُونَ', anti: '<span class="cracked-text">تَرْمِيِينَ</span> تَرْمِينَ', antuma_f: 'تَرْمِيَانِ', antunna: 'تَرْمِينَ', ana: 'أَرْمِي', nahnu: 'نَرْمِي' },
+        },
+        'MDD': {
+            ar: 'م-د-د', en: 'M-D-D', type: 'Doubled (مضاعف)', meaning: 'To Extend',
+            past: { hua: 'مَدَّ', huma_m: 'مَدَّا', hum: 'مَدُّوا', hiya: 'مَدَّتْ', huma_f: 'مَدَّتَا', hunna: '<span class="cracked-text">مَدَدْنَ</span> مَدَدْنَ', anta: '<span class="cracked-text">مَدَدْتَ</span> مَدَدْتَ', antuma_m: '<span class="cracked-text">مَدَدْتُمَا</span> مَدَدْتُمَا', antum: '<span class="cracked-text">مَدَدْتُمْ</span> مَدَدْتُمْ', anti: '<span class="cracked-text">مَدَدْتِ</span> مَدَدْتِ', antuma_f: '<span class="cracked-text">مَدَدْتُمَا</span> مَدَدْتُمَا', antunna: '<span class="cracked-text">مَدَدْتُنَّ</span> مَدَدْتُنَّ', ana: '<span class="cracked-text">مَدَدْتُ</span> مَدَدْتُ', nahnu: '<span class="cracked-text">مَدَدْنَا</span> مَدَدْنَا' },
+            present: { hua: 'يَمُدُّ', huma_m: 'يَمُدَّانِ', hum: 'يَمُدُّونَ', hiya: 'تَمُدُّ', huma_f: 'تَمُدَّانِ', hunna: 'يَمْدُدْنَ', anta: 'تَمُدُّ', antuma_m: 'تَمُدَّانِ', antum: 'تَمُدُّونَ', anti: 'تَمُدِّينَ', antuma_f: 'تَمُدَّانِ', antunna: 'تَمْدُدْنَ', ana: 'أَمُدُّ', nahnu: 'نَمُدُّ' },
+        },
+        'AKH': { // Hamzated Root for Imperative Test
+            ar: 'أ-خ-ذ', en: 'A-KH-DH', type: 'Hamzated (مهموز)', meaning: 'To Take',
+            // Past: Regular strong verb conjugation.
+            past: { hua: 'أَخَذَ', huma_m: 'أَخَذَا', hum: 'أَخَذُوا', hiya: 'أَخَذَتْ', huma_f: 'أَخَذَتَا', hunna: 'أَخَذْنَ', anta: 'أَخَذْتَ', antuma_m: 'أَخَذْتُمَا', antum: 'أَخَذْتُمْ', anti: 'أَخَذْتِ', antuma_f: 'أَخَذْتُمَا', antunna: 'أَخَذْتُنَّ', ana: 'أَخَذْتُ', nahnu: 'أَخَذْنَا' },
+            present: { hua: 'يَأْخُذُ', huma_m: 'يَأْخُذَانِ', hum: 'يَأْخُذُونَ', hiya: 'تَأْخُذُ', huma_f: 'تَأْخُذَانِ', hunna: 'يَأْخُذْنَ', anta: 'تَأْخُذُ', antuma_m: 'تَأْخُذَانِ', antum: 'تَأْخُذُونَ', anti: 'تَأْخُذِينَ', antuma_f: 'تَأْخُذَانِ', antunna: 'تَأْخُذْنَ', ana: 'آخُذُ', nahnu: 'نَأْخُذُ' },
+        },
+    };
 
-        if (rootKey === "D-R-S") {
-            // FIX: Removed incorrect .slice() which was cutting off the Sīn
-            // Strong verb: simply combines the stem and the suffix
-            if (pronounKey === "hua") {
-                conjugated = baseStem + "َ";
-            } else {
-                // For all others, we must strip the final vowel from the base stem before adding the suffix
-                conjugated = baseStem.slice(0, -1) + suffix; 
-            }
-            ruleExplanation = `Strong verb. The fixed stem is combined directly with the past tense suffix.`;
-        } else if (rootKey === "Q-W-L") {
-            if (formKey === "I") {
-                if (isWeakSuffix) {
-                    conjugated = "قُلْت" + suffix.slice(1);
-                    ruleExplanation = `MECHANICAL FAILURE: The middle weak letter (Waw) collapses under the weight of the Sukoon-causing suffix.`;
-                    visualization = "Collapse";
-                } else {
-                    conjugated = "قَال" + suffix;
-                    ruleExplanation = `VOWEL SHIFT: The middle weak letter (Waw) converts to a long Alif.`;
-                }
-            } else {
-                conjugated = baseStem + suffix;
-                ruleExplanation = `Higher Form Rule: Hollow verbs in higher forms are generally stable in the Past Tense.`;
-            }
-        } else if (rootKey === "R-M-Y") {
-            if (formKey === "I") {
-                if (pronounKey === "hum") { 
-                    conjugated = "رَمَو" + suffix;
-                    ruleExplanation = `TRANSFORMATION: The final weak letter (Yā') converts to a Waw before the plural suffix.`;
-                    visualization = "Collapse";
-                } else if (pronounKey === "hiya" || pronounKey === "huma_f") { 
-                    conjugated = "رَمَت" + suffix;
-                    ruleExplanation = `DROP: The final weak letter (Yā') is dropped entirely before the feminine suffix.`;
-                    visualization = "Collapse";
-                } else if (isWeakSuffix) { 
-                    conjugated = "رَمَيْت" + suffix.slice(1);
-                    ruleExplanation = `RESTORATION: The original weak letter (Yā') is restored to its stable state before the Sukoon-causing suffix.`;
-                    visualization = "Restoration";
-                } else {
-                    conjugated = "رَمَى" + suffix;
-                    ruleExplanation = `SOUND CHANGE: The final Yā' converts to an Alif Maqsūra.`;
-                }
-            } else {
-                conjugated = baseStem + suffix;
-                ruleExplanation = `Higher Form Defective Rule: Final weak letter remains stable or is restored in this Form.`;
-            }
-        } else if (rootKey === "M-D-D") {
-            if (formKey === "I") {
-                if (isWeakSuffix || pronounKey === 'hunna') { 
-                    conjugated = 'مَدَدْت' + suffix.slice(2); 
-                    ruleExplanation = `UNFOLDING (IFKĀK): The two final radicals (D-D) separate to accommodate the preceding Sukoon caused by the pronoun suffix.`;
-                    visualization = 'Restoration'; 
-                } else { 
-                    const doubledForms = {
-                        'hua': 'مَدَّ', 'huma_m': 'مَدَّا', 'hum': 'مَدُّوا',
-                        'hiya': 'مَدَّتْ', 'huma_f': 'مَدَّتَا'
-                    };
-                    conjugated = doubledForms[pronounKey] || 'مَدَّ' + suffix;
-                    ruleExplanation = `DOUBLING (IDGHAM): The two final radicals assimilate into a single, emphasized letter (Shaddah).`;
-                    visualization = 'Doubled'; 
-                }
-            } else {
-                conjugated = baseStem + suffix;
-                ruleExplanation = `Higher Form Doubled Rule: The final two radicals are generally stable in this form.`;
-            }
-        }
-
-        return { conjugated, ruleExplanation, visualization };
-    }
-
-
-    function conjugatePresent(rootKey, formKey, pronounKey) {
-        const prefix = presentPrefixes[pronounKey];
-        const stem = formStemsPresent[rootKey][formKey];
-        const suffix = presentSuffixes[pronounKey];
-        const strongVowel = presentStrongVowel[pronounKey];
-        
-        let conjugated = prefix + stem + suffix;
-        let ruleExplanation = "";
-        let visualization = "Strong";
-        
-        // 1. STRONG ROOT (D-R-S)
-        if (rootKey === "D-R-S") {
-            // Strong verb: prefix + root letters + strong vowel + suffix (if applicable)
-            let base = prefix + "دْرِس" + strongVowel; // Base is typically 'yad-ri-s'
-            conjugated = base + suffix;
-            ruleExplanation = `Strong verb. Prefix is added, the first radical takes Sukoon, and the second radical takes a fixed vowel (Kasra/Damma).`;
-        } 
-        
-        // 2. HOLLOW ROOT (Q-W-L)
-        else if (rootKey === "Q-W-L") {
-            // Hollow Form I: Weak letter (Waw) is restored
-            if (formKey === "I") {
-                let base = prefix + "قُول"; // ya-qūl (يَقُول)
-                
-                if (pronounKey === 'hum' || pronounKey === 'anti' || pronounKey === 'huma_m' || pronounKey === 'huma_f' || pronounKey === 'antuma_m' || pronounKey === 'antuma_f') {
-                     // Drop final vowel before long suffixes (yaqūlūna -> yaqūlūna)
-                    conjugated = prefix + "قُول" + suffix; 
-                    ruleExplanation = `RESTORATION: The middle weak letter (Waw) is restored in the Present Tense. The final short vowel drops before the long suffix.`;
-                    visualization = "Restoration";
-                } else {
-                    conjugated = base + "ُ"; // yaqūlu
-                    ruleExplanation = `RESTORATION: The middle weak letter (Waw) is restored in the Present Tense, forming the pattern YAFŪL.`;
-                    visualization = "Restoration";
-                }
-            } else {
-                // Simplified higher forms
-                conjugated = prefix + stem + suffix;
-                ruleExplanation = `Higher Form Hollow Rule: Stem structure is generally more stable in the Present Tense.`;
-            }
-        } 
-        
-        // 3. DEFECTIVE ROOT (R-M-Y)
-        else if (rootKey === "R-M-Y") {
-            // Defective Form I: Weak letter remains, but drops for certain pronouns
-            let base = prefix + "رْمِي"; // yarmi (يَرْمِي)
-            if (pronounKey === 'hum' || pronounKey === 'anti') {
-                // Drop final weak letter before long suffixes (yarmīna -> yarmūna / tarmīna)
-                conjugated = prefix + "رْمُ" + suffix; // yar-m-ūna (يَرْمُون)
-                ruleExplanation = `DROP: The final weak letter (Yā') is dropped entirely before the long suffix (Wāw/Yā') to prevent meeting of two non-vowels.`;
-                visualization = "Collapse";
-            } else {
-                conjugated = base; // yarmi (يَرْمِي) - ending in a long vowel
-                ruleExplanation = `SOUND CHANGE: The final weak letter (Yā') is often maintained but carries no vowel (Implied case ending).`;
-            }
-        }
-        
-        // 4. DOUBLED ROOT (M-D-D)
-        else if (rootKey === "M-D-D") {
-            // Doubled Form I: Always Assimilated, except for 'hunna' and 'antunna'
-            if (formKey === "I") {
-                if (pronounKey === 'hunna' || pronounKey === 'antunna') {
-                    // Unfolding for the -na suffix
-                    conjugated = prefix + "مْدُد" + suffix; // yamdudna (يَمْدُدْنَ)
-                    ruleExplanation = `UNFOLDING: The final radicals separate to accommodate the preceding Sukoon of the 'Nūn' suffix.`;
-                    visualization = "Restoration";
-                } else {
-                    // Assimilated/Doubled
-                    conjugated = prefix + "مُدّ" + strongVowel; // yamuddu (يَمُدُّ)
-                    ruleExplanation = `DOUBLING (IDGHAM): The two final radicals assimilate into a Shaddah.`;
-                }
-            } else {
-                conjugated = prefix + stem + suffix;
-                ruleExplanation = `Higher Form Doubled Rule: Stem structure is generally stable in the Present Tense.`;
-            }
-        }
-
-        return { conjugated, ruleExplanation, visualization };
-    }
-
-
-    // --- RENDER & DISPLAY ---
-
-    function updateConjugation() {
-        state.currentTense = document.getElementById("tenseSelector").value;
-        state.currentRoot = document.getElementById("rootSelector").value;
-        state.currentForm = document.getElementById("formSelector").value;
-        state.currentPronoun = document.getElementById("pronounSelector").value;
-
-        const { conjugated, ruleExplanation, visualization } = conjugate(
-            state.currentRoot,
-            state.currentForm,
-            state.currentPronoun,
-            state.currentTense
-        );
-
-        const rootDisplay = document.getElementById("rootDisplay");
-        const resultWord = document.getElementById("resultWord");
-        const formInfo = document.getElementById("formInfo");
-        const currentRootObj = rootLogic[state.currentRoot];
-        const currentPronounName = pronouns.find(p => p.key === state.currentPronoun).name;
-
-        // --- Visual Effects ---
-        resultWord.classList.remove("cracked");
-        resultWord.innerHTML = "";
-        rootDisplay.classList.remove("weak-letter");
-
-        if (visualization === "Collapse") {
-            // Simulate weak letter failure (Past/Present)
-            const baseStem = (state.currentTense === "Past" ? formStemsPast : formStemsPresent)[state.currentRoot][state.currentForm];
-            
-            // Show the original base stem as cracked
-            resultWord.innerHTML = `<span class="cracked" style="text-decoration: line-through;">${baseStem}</span> <span class="slide-in active">${conjugated}</span>`;
-            rootDisplay.classList.add("weak-letter");
-        } else if (visualization === "Restoration") {
-             // Simulate weak letter restoration/unfolding
-            resultWord.innerHTML = `<span style="color:var(--success);">Restoration/Unfolding</span> <span class="slide-in active">${conjugated}</span>`;
-        } else {
-            resultWord.innerHTML = conjugated;
-        }
-
-        // --- Info Panel Update ---
-        // FIX: Ensuring D-R-S and the Arabic letters render correctly (RTL for Arabic)
-        rootDisplay.innerHTML = `
-            ${state.currentRoot} &middot; <span dir="rtl" style="font-size: 1.1em;">${currentRootObj.rootAr}</span>
-            <div style="font-size: 0.8em; font-weight: normal; margin-top: 5px;">Type: ${currentRootObj.type}</div>
-        `;
-        
-        let formMeaning = `Form ${state.currentForm} (${state.currentTense} Tense): ${currentPronounName} conjugated.`;
-
-        formInfo.innerHTML = `
-            <p><strong>${formMeaning}</strong></p>
-            <p class="meaning-shift" style="color: ${visualization === "Collapse" ? "var(--danger)" : "var(--gray)"}">${ruleExplanation}</p>
-        `;
-    }
-    
-    // --- REVERSE LOOKUP DATA (omitted for brevity, maintained from last version) ---
+    // --- REVERSE LOOKUP DATA (Advanced, rule-based matching) ---
     const reversePatterns = [
-        { word: "كِتَابَة", root: "K-T-B", form: "I", meaning: "Writing (Verbal Noun)", stripped: "كِتَب" },
-        { word: "مُدَرِّس", root: "D-R-S", form: "II", meaning: "Teacher (Active Participle)", stripped: "دَرَّس" },
-        { word: "مُكَاتَبَة", root: "K-T-B", form: "III", meaning: "Correspondence (Verbal Noun)", stripped: "كَتَب" },
-        { word: "إِقْدَام", root: "Q-D-M", form: "IV", meaning: "Initiative (Verbal Noun)", stripped: "قَدَم" },
-        { word: "مُتَكَبِّر", root: "K-B-R", form: "V", meaning: "One who acts big (Arrogant)", stripped: "تَكَبَّر" },
-        { word: "تَشَارُك", root: "SH-R-K", form: "VI", meaning: "Shared participation (Verbal Noun)", stripped: "شَرَك" },
-        { word: "اِنْفِعَال", root: "F-'-L", form: "VII", meaning: "Emotion (Verbal Noun)", stripped: "فَعَل" },
-        { word: "اِتِّفَاق", root: "W-F-Q", form: "VIII", meaning: "Agreement (Verbal Noun - Note Waw becomes Tā\')", stripped: "و-ف-ق" },
-        { word: "اِسْتِخْدَام", root: "KH-D-M", form: "X", meaning: "Usage/Employment (Verbal Noun)", stripped: "خَدَم" },
-        { word: "قَائِل", root: "Q-W-L", form: "I", meaning: "Speaker (Active Participle)", stripped: "ق-و-ل" },
-        { word: "مُسْتَقِيل", root: "Q-W-L", form: "X", meaning: "One who resigns (Active Participle)", stripped: "اِسْتَقَالَ" },
-        { word: "مَرْمِيّ", root: "R-M-Y", form: "I", meaning: "Thrown (Passive Participle)", stripped: "ر-م-ي" },
-        { word: "اِرْتِمَاء", root: "R-M-Y", form: "VIII", meaning: "A throwing oneself (Verbal Noun)", stripped: "ر-م-ي" },
-        { word: "تَوْقِيت", root: "W-Q-T", form: "II", meaning: "Timing (Verbal Noun)", stripped: "و-ق-ت" },
-        { word: "إِرَادَة", root: "R-W-D", form: "IV", meaning: "Will/Desire (Verbal Noun)", stripped: "ر-و-د" },
-        { word: "تَزَيُّد", root: "Z-Y-D", form: "V", meaning: "Increased/Growth (Verbal Noun)", stripped: "ز-ي-د" }
+        { word: 'كِتَابَة', root: 'ك-ت-ب', form: 'I', type: 'Verbal Noun' },
+        { word: 'زِرَاعَة', root: 'ز-ر-ع', form: 'I', type: 'Verbal Noun (Skill)' },
+        { word: 'جُلُوس', root: 'ج-ل-س', form: 'I', type: 'Verbal Noun (Intransitive)' },
+        { word: 'مُعَلِّم', root: 'ع-ل-م', form: 'II', type: 'Active Participle' },
+        { word: 'تَسْلِيم', root: 'س-ل-م', form: 'II', type: 'Verbal Noun' },
+        { word: 'مُكَاتِب', root: 'ك-ت-ب', form: 'III', type: 'Active Participle' },
+        { word: 'مُجَاهَدَة', root: 'ج-ه-د', form: 'III', type: 'Verbal Noun' },
+        { word: 'إِكْرَام', root: 'ك-ر-م', form: 'IV', type: 'Verbal Noun' },
+        { word: 'مُكْرِم', root: 'ك-ر-م', form: 'IV', type: 'Active Participle' },
+        { word: 'مُتَكَبِّر', root: 'ك-ب-ر', form: 'V', type: 'Active Participle' },
+        { word: 'تَكَاذُب', root: 'ك-ذ-ب', form: 'VI', type: 'Verbal Noun' },
+        { word: 'اِنْفِعَال', root: 'ف-ع-ل', form: 'VII', type: 'Verbal Noun' },
+        { word: 'اِرْتِمَاء', root: 'ر-م-ي', form: 'VIII', type: 'Verbal Noun' },
+        { word: 'مُجْتَمَع', root: 'ج-م-ع', form: 'VIII', type: 'Passive Participle' },
+        { word: 'اِحْمِرَار', root: 'ح-م-ر', form: 'IX', type: 'Verbal Noun' },
+        { word: 'اِسْتِقْبَال', root: 'ق-ب-ل', form: 'X', type: 'Verbal Noun' },
+        { word: 'مُسْتَكْبِر', root: 'ك-ب-ر', form: 'X', type: 'Active Participle' }
     ];
 
-    function reverseLookup() {
-        const inputElement = document.getElementById("reverseInput");
-        const inputWord = inputElement.value.trim();
-        const resultElement = document.getElementById("reverseResult");
-        resultElement.innerHTML = "";
+    // --- GAME CHALLENGE DATA ---
+    const challengeWords = [
+        { word: 'مُعَلِّم', form: 'II', root: 'ع-ل-م' },
+        { word: 'مُتَكَبِّر', form: 'V', root: 'ك-ب-ر' },
+        { word: 'اِسْتِقْبَال', form: 'X', root: 'ق-ب-ل' },
+        { word: 'تَكَاذُب', form: 'VI', root: 'ك-ذ-ب' },
+        { word: 'مُكَاتِب', form: 'III', root: 'ك-ت-ب' },
+        { word: 'إِكْرَام', form: 'IV', root: 'ك-ر-م' },
+        { word: 'مُنْتَصِر', form: 'VIII', root: 'ن-ص-ر' },
+        { word: 'اِنْشِرَاح', form: 'VII', root: 'ش-ر-ح' }
+    ];
 
-        if (!inputWord) {
-            resultElement.innerText = "Please enter an Arabic word.";
+
+    // --- LOGIC ENGINE FUNCTIONS ---
+
+    function getFormStem(root, form, tense) {
+        // This is a simplified way to get the base stem for Forms II-X
+        // In a real app, this would be generated based on rules.
+        const baseStems = {
+            II: { past: 'فَعَّلَ', present: 'يُفَعِّلُ', imper: 'فَعِّلْ' },
+            III: { past: 'فَاعَلَ', present: 'يُفَاعِلُ', imper: 'فَاعِلْ' },
+            IV: { past: 'أَفْعَلَ', present: 'يُفْعِلُ', imper: 'أَفْعِلْ' },
+            V: { past: 'تَفَعَّلَ', present: 'يَتَفَعَّلُ', imper: 'تَفَعَّلْ' },
+            VI: { past: 'تَفَاعَلَ', present: 'يَتَفَاعَلُ', imper: 'تَفَاعَلْ' },
+            VII: { past: 'اِنْفَعَلَ', present: 'يَنْفَعِلُ', imper: 'اِنْفَعِلْ' },
+            VIII: { past: 'اِفْتَعَلَ', present: 'يَفْتَعِلُ', imper: 'اِفْتَعِلْ' },
+            IX: { past: 'اِفْعَلَّ', present: 'يَفْعَلُّ', imper: 'اِفْعَلَّ' },
+            X: { past: 'اِسْتَفْعَلَ', present: 'يَسْتَفْعِلُ', imper: 'اِسْتَفْعِلْ' }
+        };
+        
+        const formStemTemplate = baseStems[form]?.[tense] || '';
+        const rootLetters = rootData[root].ar.split('-');
+        
+        let stem = formStemTemplate;
+        
+        // This attempts to replace the F, A, L (ف ع ل) letters in the template
+        // with the actual root letters (r1, r2, r3).
+        if (rootLetters.length === 3) {
+            stem = stem.replace(/ف/g, rootLetters[0]);
+            stem = stem.replace(/ع/g, rootLetters[1]);
+            stem = stem.replace(/ل/g, rootLetters[2]);
+        }
+        
+        return stem;
+    }
+
+    function conjugate(rootKey, form, tense, pronoun) {
+        const p = pronounData.find(pr => pr.key === pronoun);
+        const root = rootData[rootKey];
+        let conjugatedWord = '';
+        let description = '';
+
+        // --- IMPERATIVE TENSE (Amr) Logic ---
+        if (tense === 'imperative') {
+            if (!p.imper) {
+                return { conjugatedWord: 'لا يوجد', description: 'الأمر (Imperative) exists only for the "You" (second person) pronouns.' };
+            }
+
+            // 1. Base Imperative Forms (I and Hamzated/Mithal)
+            if (form === 'I') {
+                if (rootKey === 'AKH') {
+                    // Hamzated Fa' (أخذ) -> Khudh! (خذ)
+                    conjugatedWord = 'خُذْ' + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                    description = `**Hamzated Fa' (Mahmūz):** The initial Hamza (أ) is dropped (حذف الفاء) in the imperative command for simplicity.`;
+                } else if (rootKey === 'DRS') {
+                    // Strong verb -> Udros! (أُدْرُسْ)
+                    conjugatedWord = 'اُدْرُسْ' + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                    description = `**Strong Verb (Sālim):** Command is derived from the Present Tense (يَدْرُسُ) by dropping the prefix (ي) and adding a Hamza al-Waṣl (أُ) since the middle vowel is ḍamma.`;
+                } else if (rootKey === 'QWL') {
+                     // Hollow verb -> Qul! (قُلْ)
+                    conjugatedWord = 'قُلْ' + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                    description = `**Hollow Verb (Ajwaf):** The initial Hamza is not needed, and the middle weak letter (و) is dropped to avoid meeting a Sukoon (قُلْتَ).`;
+                } else if (rootKey === 'RMY') {
+                    // Defective verb -> Irmi! (اِرْمِ)
+                    conjugatedWord = 'اِرْمِ' + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                    description = `**Defective Verb (Nāqiṣ):** Command derived from the Present Tense. The final weak letter is dropped (for all except antunna).`;
+                } else if (rootKey === 'MDD') {
+                    // Doubled verb -> Mudda! (مُدَّ)
+                    conjugatedWord = 'مُدَّ' + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                    description = `**Doubled Verb (Mudha'af):** The doubling (إدغام) is retained in the command form.`;
+                } else {
+                    conjugatedWord = 'اُفْعُلْ'; // Default Placeholder
+                }
+            } 
+            // 2. Higher Forms (II-X) Imperative
+            else {
+                const baseImperative = getFormStem(rootKey, form, 'imper');
+                conjugatedWord = baseImperative + suffixes.imperative_suffix[pronoun].replace('ْ', '');
+                description = `**Form ${form} Imperative:** Derived from the Present Tense by dropping the prefix (ت) and applying the command suffixes.`;
+            }
+
+            // Clean up suffixes for anta/antum/anti dual/plural
+            if (pronoun === 'anta' && conjugatedWord.endsWith('ْ')) conjugatedWord = conjugatedWord.slice(0, -1);
+            if (pronoun === 'anti' && conjugatedWord.endsWith('ي')) conjugatedWord = conjugatedWord.slice(0, -1);
+            
+            // Re-apply correct suffixes for duals/plurals (simple version)
+            const suf = suffixes.imperative_suffix[pronoun].replace('ْ', '');
+            if (suf && conjugatedWord.length > 0) {
+                 conjugatedWord = conjugatedWord.slice(0, -suf.length) + suf; // A simplified way to ensure the suffix is there
+            }
+            if (pronoun === 'anta' && conjugatedWord.endsWith('ْ')) { conjugatedWord = conjugatedWord.slice(0, -1) + 'ْ'; }
+            if (pronoun === 'antuma_m' || pronoun === 'antuma_f') { conjugatedWord = conjugatedWord.slice(0, -1) + 'َا'; }
+            if (pronoun === 'antum') { conjugatedWord = conjugatedWord.slice(0, -1) + 'ُوا'; }
+            if (pronoun === 'anti') { conjugatedWord = conjugatedWord.slice(0, -1) + 'ِي'; }
+            if (pronoun === 'antunna') { conjugatedWord = conjugatedWord.slice(0, -1) + 'ْنَ'; }
+
+
+            return { conjugatedWord, description };
+        } 
+        
+        // --- PAST (Mādhī) and PRESENT (Muḍāri') Tenses ---
+        
+        if (form === 'I') {
+            // Use the comprehensive lookup table for Form I
+            if (rootData[rootKey] && rootData[rootKey][tense] && rootData[rootKey][tense][pronoun]) {
+                conjugatedWord = rootData[rootKey][tense][pronoun];
+                description = `${root.type} verb. The conjugation for ${p.en} (${p.ar}) in the ${tense} tense. Check the red text for the weak letter logic.`;
+            } else {
+                conjugatedWord = 'خطأ في البيانات';
+                description = 'Data missing for this combination.';
+            }
+        } else {
+            // Use generalized stem and affixation for Forms II-X (Simulated)
+            const baseStem = getFormStem(rootKey, form, tense);
+            let affix = '';
+            
+            if (tense === 'past') {
+                affix = suffixes.past[pronoun];
+                conjugatedWord = baseStem + affix;
+                description = `**Form ${form} (Generalized):** The base stem (${baseStem}) is combined with the standard Past Tense suffix (${affix}).`;
+            } else if (tense === 'present') {
+                const prefix = suffixes.present_prefix[pronoun];
+                affix = suffixes.present[pronoun];
+                // Simplify conjugation for display. This does not handle internal changes (i'lal)
+                // but shows the correct prefix/suffix/stem pattern.
+                conjugatedWord = prefix + baseStem.slice(1) + affix; // Base stem already has one prefix char, slice it.
+                description = `**Form ${form} (Generalized):** Conjugated by adding the Present Tense prefix (${prefix}) and suffix (${affix}) to the stem.`;
+            }
+        }
+        
+        return { conjugatedWord, description };
+    }
+
+    // --- REVERSE LOOKUP ADVANCED LOGIC ---
+
+    function reverseLookup(inputWord) {
+        const resultDiv = document.getElementById('reverseResult');
+        const normalizedWord = inputWord.replace(/ /g, '').replace(/أ/g, 'ا').replace(/إ/g, 'ا').toLowerCase();
+        
+        if (normalizedWord.length < 4) {
+             resultDiv.innerHTML = `<span style="color:#666;">الرجاء إدخال كلمة أطول (Please enter a longer Arabic word).</span>`;
+             return;
+        }
+
+        // 1. Check Exact Dictionary Match
+        const match = reversePatterns.find(p => p.word.toLowerCase().replace(/أ/g, 'ا').replace(/إ/g, 'ا') === normalizedWord);
+        if (match) {
+            resultDiv.innerHTML = `<span class="slide-in">Root: <span style="color:var(--secondary); font-weight:bold;">${match.root}</span> | Form: <span style="color:var(--primary); font-weight:bold;">${match.form}</span> | Type: ${match.type}</span>`;
             return;
         }
 
-        const match = reversePatterns.find(p => p.word.toLowerCase() === inputWord.toLowerCase());
+        let inferredForm = 'I (?)';
+        let type = 'Unknown Noun (غير معروف)';
+        let root = 'Inferred Root (?)';
 
-        if (match) {
-            resultElement.innerHTML = `
-                <p style="color:var(--success); font-weight:bold;">Analysis Complete:</p>
-                <div style="background:#f9f9f9; padding:10px; border-radius:6px; font-family:monospace; font-size:0.9em;">
-                    Word: ${match.word}<br>
-                    Stripped Pattern: <span style="color:var(--primary);">${match.stripped || "N/A"}</span><br>
-                    Reveals Root: **${match.root}** (${rootLogic[match.root]?.meaning || "Unknown"})
-                </div>
-                <p style="margin-top:10px;">Derived from **Form ${match.form}**.</p>
-                <p class="meaning-shift">${match.meaning}</p>
-            `;
-        } else {
-            resultElement.innerText = `Could not find pattern for "${inputWord}". Try "Mutakabbir" or "تَزَيُّد".`;
-            resultElement.style.color = "var(--danger)";
+        // 2. Rule-Based Inference for Higher Forms (Masdar/Participle)
+        
+        // Form X Masdar (اِسْتِفْعَال)
+        if (normalizedWord.startsWith('است') && normalizedWord.endsWith('ال')) {
+            inferredForm = 'X';
+            type = 'Verbal Noun (مصدر)';
+            // Root is usually the 4th, 5th, 6th letter
+            root = normalizedWord.slice(3, 6).split('').join('-');
+        } 
+        // Form IV Masdar (إِفْعَال)
+        else if (normalizedWord.startsWith('إ') && normalizedWord.endsWith('ام')) {
+             inferredForm = 'IV';
+             type = 'Verbal Noun (مصدر)';
+             // Root is usually 2nd, 3rd, 4th letter
+             root = normalizedWord.slice(1, 4).split('').join('-');
+        }
+        // Form II Masdar (تَفْعِيل)
+        else if (normalizedWord.startsWith('ت') && normalizedWord.endsWith('يل')) {
+             inferredForm = 'II';
+             type = 'Verbal Noun (مصدر)';
+             // Root: 2nd, 3rd, 4th letter (2nd being doubled)
+             root = normalizedWord.slice(1, 4).split('').join('-');
+        }
+        // Form III Masdar (مُفَاعَلَة)
+        else if (normalizedWord.startsWith('مُ') && normalizedWord.endsWith('ة')) {
+            // Check for MuFā'ala pattern (long vowel 'ā' is key)
+            if (normalizedWord.indexOf('ا') > 1 && normalizedWord.indexOf('ا') < normalizedWord.length - 2) {
+                 inferredForm = 'III';
+                 type = 'Verbal Noun (مصدر)';
+                 // Root: 2nd, 4th, 5th letter (skipping the Alif)
+                 root = normalizedWord[1] + '-' + normalizedWord[3] + '-' + normalizedWord[4];
+            }
+        }
+        // Form V/VI Participle (مُتَفَعِّل / مُتَفَاعِل)
+        else if (normalizedWord.startsWith('مت')) {
+            inferredForm = 'V or VI';
+            type = 'Active Participle (فاعل)';
+            root = normalizedWord.slice(2, 5).split('').join('-');
+        }
+        
+        resultDiv.innerHTML = `<span style="color:var(--error); font-weight:bold;">No exact match.</span><br><span style="font-size:14px; direction:rtl;">التحليل التقديري (Inferred Analysis): Form ${inferredForm}, Root: ${root.toUpperCase()}, Type: ${type}.</span>`;
+    }
+
+    // --- RENDER HELPERS ---
+
+    function render() {
+        const content = document.getElementById('contentArea');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const tabChallenge = document.getElementById('tabChallenge');
+        const tabStudy = document.getElementById('tabStudy');
+
+        scoreDisplay.innerText = state.score;
+
+        // Update Tab Styles
+        tabChallenge.classList.remove('active');
+        tabStudy.classList.remove('active');
+
+        content.innerHTML = ''; // Clear previous content
+
+        if (state.currentTab === 1) {
+            tabChallenge.classList.add('active');
+            renderChallenge(content);
+        } else if (state.currentTab === 2) {
+            tabStudy.classList.add('active');
+            renderStudy(content); // Calls the renamed function
         }
     }
 
-    // Initial setup
-    document.addEventListener("DOMContentLoaded", () => {
-        // Map Roots
-        const rootSelector = document.getElementById("rootSelector");
-        Object.keys(rootLogic).forEach(key => {
-            if (key !== "K-B-R") { 
-                const option = document.createElement("option");
-                option.value = key;
-                option.textContent = `${key} (${rootLogic[key].type})`;
-                rootSelector.appendChild(option);
-            }
-        });
+    function renderStudy(container) { // Renamed function
+        const { conjugatedWord, description } = conjugate(state.rootKey, state.form, state.tense, state.pronoun);
+        const rootInfo = rootData[state.rootKey];
+        const pronounInfo = pronounData.find(p => p.key === state.pronoun);
+        const formInfo = formNames.find(f => f.key === state.form);
 
-        // Map Forms I-X
-        const formSelector = document.getElementById("formSelector");
-        formSelector.innerHTML = "";
-        for (let i = 1; i <= 10; i++) {
-            const formKey = i === 1 ? "I" : i === 2 ? "II" : i === 3 ? "III" : i === 4 ? "IV" : i === 5 ? "V" : i === 6 ? "VI" : i === 7 ? "VII" : i === 8 ? "VIII" : i === 9 ? "IX" : "X";
-            const option = document.createElement("option");
-            option.value = formKey;
-            option.textContent = `Form ${formKey}`;
-            formSelector.appendChild(option);
+        container.innerHTML = `
+            <div class="controls-panel">
+                <!-- Tense Dial -->
+                <div class="control-group">
+                    <label>Tense (الزمن)</label>
+                    <div class="interactive-controls">
+                        <button class="btn ${state.tense === 'past' ? 'active' : ''}" onclick="setTense('past')">Past (الماضي)</button>
+                        <button class="btn ${state.tense === 'present' ? 'active' : ''}" onclick="setTense('present')">Present (المضارع)</button>
+                        <button class="btn ${state.tense === 'imperative' ? 'active' : ''}" onclick="setTense('imperative')">Imperative (الأمر)</button>
+                    </div>
+                </div>
+
+                <!-- Root Dial -->
+                <div class="control-group">
+                    <label>Root Type (الجذر)</label>
+                    <div class="interactive-controls">
+                        <button class="btn ${state.rootKey === 'DRS' ? 'active' : ''}" onclick="setRoot('DRS')">DRS (سالم)</button>
+                        <button class="btn ${state.rootKey === 'QWL' ? 'active' : ''}" onclick="setRoot('QWL')">QWL (أجوف)</button>
+                        <button class="btn ${state.rootKey === 'RMY' ? 'active' : ''}" onclick="setRoot('RMY')">RMY (ناقص)</button>
+                        <button class="btn ${state.rootKey === 'MDD' ? 'active' : ''}" onclick="setRoot('MDD')">MDD (مضاعف)</button>
+                        <button class="btn ${state.rootKey === 'AKH' ? 'active' : ''}" onclick="setRoot('AKH')">AKH (مهموز)</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <!-- Form Selector -->
+                    <div class="control-group" style="flex: 1;">
+                        <label>Form (الباب)</label>
+                        <select onchange="setForm(this.value)">
+                            ${formNames.map(f => `<option value="${f.key}" ${state.form === f.key ? 'selected' : ''}>Form ${f.key} (${f.ar})</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <!-- Pronoun Selector -->
+                    <div class="control-group" style="flex: 1;">
+                        <label>Pronoun (الضمير)</label>
+                        <select id="pronounSelector" onchange="setPronoun(this.value)">
+                            ${pronounData.filter(p => state.tense !== 'imperative' || p.imper).map(p => {
+                                return `<option value="${p.key}" ${state.pronoun === p.key ? 'selected' : ''}>${p.ar} (${p.en})</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="study-output">
+                <div class="study-root" dir="rtl">${rootInfo.ar} · ${rootInfo.en} · ${rootInfo.type}</div>
+                <div style="font-size:18px; color:var(--secondary); font-weight:500;" dir="rtl">
+                    ${formInfo.ar} (Form ${state.form}): ${pronounInfo.ar} (${pronounInfo.en})
+                </div>
+                <div class="study-verb-display" dir="rtl">${conjugatedWord}</div>
+                <div class="study-description" id="studyDescription" dir="rtl">${description}</div>
+            </div>
+
+            <!-- Reverse Lookup -->
+            <div class="reverse-lookup-container">
+                <h3>Reverse Lookup Utility</h3>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="reverseInput" placeholder="أدخل كلمة مشتقة (مثل مُتَكَبِّر)" style="flex: 1; direction:rtl; text-align:right;" oninput="debounceReverseLookup(this.value)">
+                    <button class="btn" style="background:var(--secondary); color:white; width: 100px;" onclick="reverseLookup(document.getElementById('reverseInput').value)">Analyze</button>
+                </div>
+                <div id="reverseResult" dir="rtl" style="height:30px;">ابحث عن الجذر والباب الصرفي للكلمة.</div>
+            </div>
+        `;
+    }
+
+    // --- MAIN APP LOGIC ---
+
+    function switchTab(n) {
+        state.currentTab = n;
+        render();
+    }
+
+    function setTense(tense) {
+        state.tense = tense;
+        // Reset pronoun for Imperative if needed
+        if (tense === 'imperative' && !pronounData.find(p => p.key === state.pronoun)?.imper) {
+            state.pronoun = 'anta';
         }
+        render();
+    }
 
-        // Map 14 Pronouns
-        const pronounSelector = document.getElementById("pronounSelector");
-        pronounSelector.innerHTML = "";
-        pronouns.forEach(p => {
-            const option = document.createElement("option");
-            option.value = p.key;
-            option.textContent = p.name;
-            pronounSelector.appendChild(option);
-        });
+    function setRoot(root) {
+        state.rootKey = root;
+        render();
+    }
+
+    function setForm(form) {
+        state.form = form;
+        render();
+    }
+
+    function setPronoun(pronoun) {
+        state.pronoun = pronoun;
+        render();
+    }
+
+    // --- CHALLENGE MODE LOGIC ---
+
+    function renderChallenge(container) {
+        if (!state.currentChallengeWord) {
+            state.currentChallengeWord = challengeWords[Math.floor(Math.random() * challengeWords.length)];
+        }
         
-        updateConjugation(); // Initial render
-    });
+        const word = state.currentChallengeWord;
+
+        container.innerHTML = `
+            <div class="challenge-card">
+                <p style="font-size:16px; margin: 0; direction:rtl;">ما هو الباب (Form) الذي اشتُقَّت منه هذه الكلمة؟</p>
+                <div class="challenge-word">${word.word}</div>
+                <div id="feedback" dir="rtl" style="height:20px; text-align:center; margin-top:10px; font-weight:500;"></div>
+            </div>
+            
+            <div class="form-grid">
+                ${formNames.map(f => `
+                    <button class="btn btn-form" onclick="checkChallenge('${f.key}')">
+                        F. ${f.key}
+                        <span class="form-ar" dir="rtl">${f.ar}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    let challengeTimeout;
+    function checkChallenge(selectedForm) {
+        clearTimeout(challengeTimeout);
+        const feedback = document.getElementById('feedback');
+        const app = document.getElementById('app');
+        const correctForm = state.currentChallengeWord.form;
+        const correctFormAr = formNames.find(f => f.key === correctForm).ar;
+
+        if (selectedForm === correctForm) {
+            state.score += 10;
+            feedback.innerHTML = `<span style="color:var(--success);">صحيح! (Correct!) إنها الباب ${correctForm} (${correctFormAr})</span>`;
+            
+            // Set up next challenge
+            setTimeout(() => {
+                state.currentChallengeWord = null;
+                render();
+            }, 1500);
+        } else {
+            feedback.innerHTML = `<span style="color:var(--error);">غير صحيح (Incorrect). حاول مرة أخرى.</span>`;
+            app.classList.add('shake-animation');
+            setTimeout(() => app.classList.remove('shake-animation'), 500);
+            
+            // Clear feedback after a short while
+            challengeTimeout = setTimeout(() => {
+                feedback.innerText = '';
+            }, 2000);
+        }
+        document.getElementById('scoreDisplay').innerText = state.score;
+    }
+
+
+    let lookupDebounceTimer;
+    function debounceReverseLookup(value) {
+        clearTimeout(lookupDebounceTimer);
+        lookupDebounceTimer = setTimeout(() => {
+            reverseLookup(value);
+        }, 500);
+    }
+
+    // Initial Render
+    render();
 
 </script>
 
